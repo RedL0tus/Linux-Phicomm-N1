@@ -8,7 +8,7 @@ _srcname=linux-5.2
 _kernelname=${pkgbase#linux}
 _desc="AArch64 kernel for Phicomm N1"
 pkgver=5.2.11
-pkgrel=1
+pkgrel=2
 arch=('aarch64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -56,6 +56,10 @@ prepare() {
   # Amlogic meson SoC TEXT_OFFSET
   sed -i "s/TEXT_OFFSET := 0x00080000/TEXT_OFFSET := 0x01080000/g" arch/arm64/Makefile
   sed -i "s/#error TEXT_OFFSET must be less than 2MB//g" arch/arm64/kernel/head.S
+
+  # self-maintained dtb for phicomm-n1
+  target_dts="meson-gxl-s905d-phicomm-n1.dts"
+  cat "${srcdir}/${target_dts}" > "./arch/arm64/boot/dts/amlogic/${target_dts}"
 
   # add pkgrel to extraversion
   sed -ri "s|^(EXTRAVERSION =)(.*)|\1 \2-${pkgrel}|" Makefile
