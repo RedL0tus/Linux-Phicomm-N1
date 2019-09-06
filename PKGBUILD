@@ -17,24 +17,14 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' '
 options=('!strip')
 source=("http://www.kernel.org/pub/linux/kernel/v5.x/${_srcname}.tar.xz"
         "http://www.kernel.org/pub/linux/kernel/v5.x/patch-${pkgver}.xz"
-        '0001-net-smsc95xx-Allow-mac-address-to-be-set-as-a-parame.patch'
-        '0002-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch'
-        '0003-arm64-dts-rockchip-add-usb3-controller-node-for-RK33.patch'
-        '0004-arm64-dts-rockchip-enable-usb3-nodes-on-rk3328-rock6.patch'
-        '0005-watchdog-bcm2835_wdt-Fix-module-autoload.patch'
-        'meson-gxl-s905d-phicomm-n1.dts'
+        '0001-arm64-dts-phicomm-n1-add-devices.patch'
         'config'
         'linux.preset'
         '60-linux.hook'
         '90-linux.hook')
 md5sums=('ddf994de00d7b18395886dd9b30b9262'
          '44dfa2755410b72ee660fa29bfb15af1'
-         '6ee347975dca719ecd63a846cc5983b2'
-         '7005141e542864b4e3cf6141ff642cf9'
-         '9986e28b5c2c3c62a5c3bb53abd94640'
-         '552ea82c3a5e14ca9149da8c4b4d5a82'
-         '79a9339191904f10f5659eea9cf51a6c'
-         'caa2dbc19116d818e6d0d46baeca961b'
+         'cc0637d1229daa1c9102f054358ae613'
          'aa697ec98d7e2016a85fb4c237559794'
          '66e0ae63183426b28c0ec0c7e10b5e16'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
@@ -44,24 +34,16 @@ prepare() {
   cd ${_srcname}
 
   # add upstream patch
-  git apply --whitespace=nowarn ../patch-${pkgver}
+  patch -n1 < "../patch-${pkgver}"
 
-  # ALARM patches
-  git apply ../0001-net-smsc95xx-Allow-mac-address-to-be-set-as-a-parame.patch
-  git apply ../0002-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch
-  git apply ../0003-arm64-dts-rockchip-add-usb3-controller-node-for-RK33.patch
-  git apply ../0004-arm64-dts-rockchip-enable-usb3-nodes-on-rk3328-rock6.patch
-  git apply ../0005-watchdog-bcm2835_wdt-Fix-module-autoload.patch
+  # DTS
+  patch -n1 < "../0001-arm64-dts-phicomm-n1-add-devices.patch"
 
   cat "${srcdir}/config" > ./.config
 
   # Amlogic meson SoC TEXT_OFFSET
   sed -i "s/TEXT_OFFSET := 0x00080000/TEXT_OFFSET := 0x01080000/g" arch/arm64/Makefile
   sed -i "s/#error TEXT_OFFSET must be less than 2MB//g" arch/arm64/kernel/head.S
-
-  # self-maintained dtb for phicomm-n1
-  target_dts="meson-gxl-s905d-phicomm-n1.dts"
-  cat "${srcdir}/${target_dts}" > "./arch/arm64/boot/dts/amlogic/${target_dts}"
 
   # add pkgrel to extraversion
   sed -ri "s|^(EXTRAVERSION =)(.*)|\1 \2-${pkgrel}|" Makefile
