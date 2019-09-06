@@ -1,12 +1,9 @@
-# AArch64 multi-platform
-# Maintainer: Kevin Mihelich <kevin@archlinuxarm.org>
+# AArch64 kernel for Phicomm N1
+# Maintainer: Kay Lin <kaymw@aosc.io>
 
 buildarch=8
 
 pkgbase=linux-phicomm-n1
-_srcname=linux-5.2
-_kernelname=${pkgbase#linux}
-_desc="AArch64 kernel for Phicomm N1"
 pkgver=5.2.11
 pkgrel=3
 arch=('aarch64')
@@ -15,15 +12,16 @@ license=('GPL2')
 depends=('uboot-tools')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' 'vboot-utils' 'dtc')
 options=('!strip')
+_srcname="linux-${pkgver}"
+_kernelname=${pkgbase#linux}
+_desc="AArch64 kernel for Phicomm N1"
 source=("http://www.kernel.org/pub/linux/kernel/v5.x/${_srcname}.tar.xz"
-        "http://www.kernel.org/pub/linux/kernel/v5.x/patch-${pkgver}.xz"
         '0001-arm64-dts-phicomm-n1-add-devices.patch'
         'config'
         'linux.preset'
         '60-linux.hook'
         '90-linux.hook')
-md5sums=('ddf994de00d7b18395886dd9b30b9262'
-         '44dfa2755410b72ee660fa29bfb15af1'
+md5sums=('e6eda726e4a122b9f5d05b6fc97bbab5'
          'cc0637d1229daa1c9102f054358ae613'
          'aa697ec98d7e2016a85fb4c237559794'
          '66e0ae63183426b28c0ec0c7e10b5e16'
@@ -33,11 +31,8 @@ md5sums=('ddf994de00d7b18395886dd9b30b9262'
 prepare() {
   cd ${_srcname}
 
-  # add upstream patch
-  patch -n1 < "../patch-${pkgver}"
-
   # DTS
-  patch -n1 < "../0001-arm64-dts-phicomm-n1-add-devices.patch"
+  patch -p1 < "../0001-arm64-dts-phicomm-n1-add-devices.patch"
 
   cat "${srcdir}/config" > ./.config
 
